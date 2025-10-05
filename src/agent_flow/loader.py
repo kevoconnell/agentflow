@@ -101,6 +101,33 @@ def load_agent(path: Path) -> Agent:
         "Expected AGENT or any Agent export"
     )
 
+def load_all_agents(root: Path = Path.cwd()) -> dict[str, Agent]:
+    """
+    Load all agent files from a directory into a registry.
+
+    Args:
+        root: Root directory to search
+
+    Returns:
+        Dictionary mapping agent names to their Agent instances
+
+    Example:
+        >>> agents = load_all_agents()
+        >>> {'researcher': <Agent>, 'writer': <Agent>}
+    """
+    agent_files = find_agent_files(root)
+    agents: dict[str, Agent] = {}
+
+    for agent_file in agent_files:
+        try:
+            agent = load_agent(agent_file)
+            agents[agent.name] = agent
+        except Exception:
+            # Silently skip malformed agent files in discovery
+            continue
+
+    return agents
+
 
 def resolve_agent(ref: str, default_agent_id: Optional[str] = None) -> Agent:
     """
