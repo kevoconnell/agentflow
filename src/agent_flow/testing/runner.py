@@ -32,7 +32,6 @@ async def run_tests(
     Returns:
         None (exits process with code 0 on success, 1 on failure)
     """
-    print("🔍 Discovering CSV test files...\n")
 
     csv_files = find_csv_files(filter_str=filter_str)
 
