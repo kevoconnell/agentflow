@@ -1,17 +1,17 @@
 {
-  "run_id": "2025-10-05T14:13:37.477670",
+  "run_id": "2025-10-05T14:16:27.932330",
   "summary": {
     "total": 10,
-    "passed": 9,
-    "failed": 1,
+    "passed": 10,
+    "failed": 0,
     "errors": 0,
     "skipped": 0
   },
   "results": [
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    To calculate \\( 5 + 3 \\):\n    \n    \\[\n    5 + 3 = 8\n    \\]\n    \n    The result is \\( 8 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        To calculate \\( 5 +...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of \\( 5 + 3 \\) is \\( 8 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of \\( 5 ...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "contains \"8\"",
@@ -19,7 +19,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 3357,
+      "latency_ms": 2895,
       "agent_ref": "calculator",
       "test_id": "simple_add",
       "notes": "Verify exactly 1 tool call is made",
@@ -47,7 +47,7 @@
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    First, we calculate \\(5 + 3\\):\n    \n    \\[\n    5 + 3 = 8\n    \\]\n    \n    Then, we multiply the result by 2:\n    \n    \\[\n    8 \\times 2 = 16\n    \\]\n    \n    Thus, \\((5 + 3) \\times 2 = 16\\).\n- 5 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    First, we calculate \\( 5 + 3 \\):\n    \n    \\[\n    5 + 3 = 8\n    \\]\n    \n    Next, we multiply the result by 2:\n    \n    \\[\n    8 \\times 2 = 16\n    \\]\n    \n    So, the final result of \\((5 + 3) \\times 2\\) is **16**.\n- 5 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
       "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        First, we calculate...\n- 5 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
@@ -56,7 +56,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 4061,
+      "latency_ms": 4485,
       "agent_ref": "calculator",
       "test_id": "multi_step_calculation",
       "notes": "Verify exactly 2 tool calls are made",
@@ -95,8 +95,8 @@
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    Let's break down the calculation step by step:\n    \n    1. Calculate \\(10 + 5\\):\n       \\[\n       10 + 5 = 15\n       \\]\n    \n    2. Multiply the result by 2:\n       \\[\n       15 \\times 2 = 30\n       \\]\n    \n    3. Subtract 10 from the previous result:\n       \\[\n       30 - 10 = 20\n       \\]\n    \n    Therefore, the final result of \\((10 + 5) * 2 - 10\\) is **20**.\n- 7 new item(s)\n- 3 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        Let's break down th...\n- 7 new item(s)\n- 3 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    Let's break down the calculation step-by-step:\n    \n    1. Calculate \\( 10 + 5 \\):\n       \\[\n       10 + 5 = 15\n       \\]\n    \n    2. Multiply the result by 2:\n       \\[\n       15 \\times 2 = 30\n       \\]\n    \n    3. Subtract 10 from the result:\n       \\[\n       30 - 10 = 20\n       \\]\n    \n    So, the final result of \\( (10 + 5) \\times 2 - 10 \\) is **20**.\n- 11 new item(s)\n- 4 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        Let's break down th...\n- 11 new item(s)\n- 4 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "regex \"\\b20\\b\"",
@@ -104,7 +104,7 @@
           "reason": "matched"
         }
       ],
-      "latency_ms": 7437,
+      "latency_ms": 8159,
       "agent_ref": "calculator",
       "test_id": "min_tool_calls",
       "notes": "Verify at least 2 tool calls are made",
@@ -116,6 +116,22 @@
             "b": 5
           },
           "result": 15.0
+        },
+        {
+          "name": "multiply",
+          "arguments": {
+            "a": 15,
+            "b": 2
+          },
+          "result": 30.0
+        },
+        {
+          "name": "add",
+          "arguments": {
+            "a": 15,
+            "b": 5
+          },
+          "result": 20.0
         },
         {
           "name": "multiply",
@@ -144,15 +160,15 @@
       ],
       "tool_status": "OK",
       "run_metadata": {
-        "new_items_count": 7,
-        "responses_count": 3
+        "new_items_count": 11,
+        "responses_count": 4
       },
       "csv_file": "/Users/kevinoconnell/Desktop/agent_flow/examples/calculator/agents/calculator/test_tool_count.csv"
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of dividing \\( 10 \\) by \\( 2 \\) is \\( 5.0 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of divid...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of \\( 10 \\div 2 \\) is \\( 5.0 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of \\( 10...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "contains \"5\"",
@@ -170,7 +186,7 @@
           "reason": "result validated"
         }
       ],
-      "latency_ms": 4074,
+      "latency_ms": 2093,
       "agent_ref": "calculator",
       "test_id": "division_with_result",
       "notes": "Verify tool call count and validate arguments/result",
@@ -212,7 +228,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 2452,
+      "latency_ms": 2806,
       "agent_ref": "calculator",
       "test_id": "any_tool_used",
       "notes": "Verify at least one tool is called (any tool)",
@@ -236,8 +252,8 @@
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of \\( 100 + 50 \\) is \\( 150 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of \\( 10...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of 100 plus 50 is \\( 150 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of 100 p...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "contains \"150\"",
@@ -245,7 +261,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 2456,
+      "latency_ms": 2708,
       "agent_ref": "calculator",
       "test_id": "max_tool_calls",
       "notes": "Verify at most 1 tool call is made",
@@ -273,8 +289,8 @@
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of \\( 2 + 3 \\) is \\( 5 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of \\( 2 ...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The sum of 2 plus 3 is **5**.\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The sum of 2 plus 3...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "contains \"5\"",
@@ -282,7 +298,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 2809,
+      "latency_ms": 1910,
       "agent_ref": "calculator",
       "test_id": "calc_001",
       "notes": "Basic addition test",
@@ -305,22 +321,17 @@
       "csv_file": "/Users/kevinoconnell/Desktop/agent_flow/examples/calculator/agents/calculator/tests/calculator.csv"
     },
     {
-      "status": "FAIL",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The product of 4 and 7 is \\( 28 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The product of 4 an...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "status": "PASS",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of multiplying 4 by 7 is **28**.\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of multi...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "contains \"28\"",
           "passed": true,
           "reason": "found"
-        },
-        {
-          "description": "latency <= 5000ms",
-          "passed": false,
-          "reason": "exceeded: 10324ms"
         }
       ],
-      "latency_ms": 10324,
+      "latency_ms": 2664,
       "agent_ref": "calculator",
       "test_id": "calc_002",
       "notes": "Basic multiplication test",
@@ -344,8 +355,8 @@
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The result of \\( 10 \\div 2 \\) is \\( 5.0 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
-      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The result of \\( 10...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    10 divided by 2 is 5.0.\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        10 divided by 2 is ...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
           "description": "contains \"5\"",
@@ -353,7 +364,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 2382,
+      "latency_ms": 2027,
       "agent_ref": "calculator",
       "test_id": "calc_003",
       "notes": "Basic division test",
@@ -377,7 +388,7 @@
     },
     {
       "status": "PASS",
-      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The calculation for \\( 15 + 25 \\) results in \\( 40 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
+      "response": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    The calculation for \\( 15 + 25 \\) is \\( 40 \\).\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guardrail result(s)\n(See `RunResult` for more details)",
       "response_excerpt": "RunResult:\n- Last agent: Agent(name=\"calculator\", ...)\n- Final output (str):\n    RunResult:\n    - Last agent: Agent(name=\"calculator\", ...)\n    - Final output (str):\n        The calculation for...\n- 3 new item(s)\n- 2 raw response(s)\n- 0 input guardrail result(s)\n- 0 output guar...",
       "assertions": [
         {
@@ -386,7 +397,7 @@
           "reason": "found"
         }
       ],
-      "latency_ms": 2906,
+      "latency_ms": 2769,
       "agent_ref": "calculator",
       "test_id": "calc_004",
       "notes": "Addition with larger numbers",
