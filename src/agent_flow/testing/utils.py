@@ -295,7 +295,7 @@ def print_test_result(result: dict[str, Any], csv_path: Path, row_num: int, verb
         print(f"\n{GRAY}Notes: {notes}{RESET}")
 
     # File location
-    print(f"{GRAY}File : {csv_path} (row {row_num}){RESET}")
+    print(f"{GRAY}File : {csv_path.relative_to(Path.cwd())} (row {row_num}){RESET}")
 
     # Error details
     if result.get("error"):

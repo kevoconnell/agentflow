@@ -4,6 +4,7 @@ import json
 import sys
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 from ..loader import resolve_agent
@@ -48,7 +49,7 @@ async def run_tests(
     all_results = []
 
     for csv_path, default_agent_id in csv_files:
-        print(f"📄 Running tests from: {csv_path}")
+        print(f"📄 Running tests from: {csv_path.relative_to(Path.cwd())}")
 
         rows = read_file(csv_path)
 
@@ -79,8 +80,8 @@ async def run_tests(
                     # Run test
                     result = await run_test(row, agent, agent_ref)
 
-                    # Add CSV file path to result
-                    result["csv_file"] = str(csv_path)
+                    # Add CSV file path to result (relative to current working directory)
+                    result["csv_file"] = str(csv_path.relative_to(Path.cwd()))
 
                     # Update stats
                     if result["status"] == "PASS":
@@ -108,7 +109,7 @@ async def run_tests(
                             "status": "ERROR",
                             "error": str(e),
                             "latency_ms": 0,
-                            "csv_file": str(csv_path),
+                            "csv_file": str(csv_path.relative_to(Path.cwd())),
                         }
                     )
 
