@@ -3,9 +3,6 @@ SEARCH_PATHS = ["."]  # Search from current directory
 OPTIONAL_COLUMNS = {
     "agent_refs",
     "tools_expected_json",
-    "model",
-    "temperature",
-    "seed",
     "max_latency_ms",
     "max_cost_usd",
     "tags",
