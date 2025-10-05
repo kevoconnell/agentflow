@@ -11,7 +11,6 @@ A lightweight Python library for building and testing multi-agent AI workflows w
 - 🔄 **Multi-Agent Orchestration** - Seamless handoffs between specialized agents
 - ⚡ **Real-time Streaming** - Live agent responses with tool visibility
 - 🎛️ **Dynamic Controls** - Configure agent parameters on the fly
-- 🌓 **Dark/Light Mode** - Automatic theme detection
 
 ## Quick Start
 
