@@ -2,13 +2,15 @@ name: Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']
@@ -31,8 +33,7 @@ jobs:
         agent-flow list
 
     - name: Run calculator tests
-      env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      if: steps.check_key.outputs.has_key == 'true'
       run: |
         cd examples/calculator
         agent-flow test --verbose
