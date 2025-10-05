@@ -192,7 +192,7 @@ Both formats work identically - choose based on your preference!
 
 ## Requirements
 
-- Python 3.11+
+- Python 3.9+
 - Node.js 18+ (for UI development)
 - OpenAI API key or Anthropic API key
 
@@ -207,9 +207,8 @@ Both formats work identically - choose based on your preference!
 - **Live Reload**: The playground auto-reloads when you save `.agent.py` files
 - **Markdown Support**: Agent responses support full markdown formatting
 - **Tool Visibility**: See tool calls and outputs in real-time
-- **Theme Toggle**: Switch between light/dark mode with the toggle in the header
 - **Agent Editor**: Edit agent instructions directly in the UI (temporary changes)
 
 ## License
 
-MIT
+Apache 2.0
