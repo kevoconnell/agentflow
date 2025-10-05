@@ -30,7 +30,7 @@ jobs:
 
     - name: List available agents
       run: |
-        agent-flow list
+       cd examples/calculator && agent-flow list
 
     - name: Run calculator tests
       if: steps.check_key.outputs.has_key == 'true'

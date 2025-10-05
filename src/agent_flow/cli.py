@@ -221,7 +221,6 @@ def list_resources() -> None:
         print()
     else:
         print("No agents found in current directory.")
-        print("Agents should be defined in *_flow.py files.")
 
 
 if __name__ == "__main__":
