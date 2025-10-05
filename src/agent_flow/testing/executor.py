@@ -1,7 +1,7 @@
 """Test execution logic."""
 
 import time
-from typing import Any, dict
+from typing import Any
 
 from agents import Agent, Runner
 
