@@ -3,21 +3,14 @@ Compatibility layer for OpenAI Agents SDK.
 All SDK imports go through here to isolate against API changes.
 """
 
-from typing import Any, Dict
 import os
+
+from agents import set_default_openai_api, set_default_openai_client, set_tracing_disabled
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 # Load environment variables from .env file
 load_dotenv()
-
-
-
-
-from agents import Agent
-from agents.items import MessageOutputItem as Message
-
-from openai import AsyncOpenAI
-from agents import set_default_openai_client, set_tracing_disabled, set_default_openai_api
 
 
 _api_key = os.getenv("OPENAI_API_KEY")
@@ -33,12 +26,7 @@ if not _base_url:
 if _response_type not in ["chat_completions", "responses"]:
     raise ValueError("OPENAI_RESPONSE_TYPE must be either 'chat_completions' or 'responses'")
 
-_shared_client = AsyncOpenAI(
-    api_key=_api_key,
-    base_url=_base_url
-)
-
-
+_shared_client = AsyncOpenAI(api_key=_api_key, base_url=_base_url)
 
 
 set_default_openai_client(_shared_client)
@@ -50,17 +38,14 @@ api_type = "chat_completions" if _response_type == "chat_completions" else "resp
 set_default_openai_api(api_type)
 
 # disable if base api is not openai
-if not "openai.com" in _base_url:
+if "openai.com" not in _base_url:
     set_tracing_disabled(True)
 else:
     set_tracing_disabled(False)
 
 
-
-
 # Re-export SDK types for internal use
 __all__ = [
-
     "get_shared_client",
 ]
 

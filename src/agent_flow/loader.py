@@ -7,10 +7,8 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
-from typing import Optional
 
 from agents import Agent
-
 
 
 def find_agent_files(root: Path = Path.cwd()) -> list[Path]:
@@ -38,8 +36,6 @@ def find_agent_files(root: Path = Path.cwd()) -> list[Path]:
                     agent_files.append(index_file)
 
     return sorted(agent_files)
-
-
 
 
 def load_agent(path: Path) -> Agent:
@@ -98,10 +94,8 @@ def load_agent(path: Path) -> Agent:
             if isinstance(attr, Agent):
                 return attr
 
-    raise ValueError(
-        f"No agent definition found in {path}. "
-        "Expected AGENT or any Agent export"
-    )
+    raise ValueError(f"No agent definition found in {path}. " "Expected AGENT or any Agent export")
+
 
 def load_all_agents(root: Path = Path.cwd()) -> dict[str, Agent]:
     """
@@ -131,7 +125,7 @@ def load_all_agents(root: Path = Path.cwd()) -> dict[str, Agent]:
     return agents
 
 
-def resolve_agent(ref: str, default_agent_id: Optional[str] = None) -> Agent:
+def resolve_agent(ref: str, default_agent_id: str | None = None) -> Agent:
     """
     Load an agent by name from agents/agent_name/index.py.
 

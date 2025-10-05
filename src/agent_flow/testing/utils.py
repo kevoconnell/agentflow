@@ -2,16 +2,16 @@
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
-from .constants import GREEN, RED, YELLOW, RESET, GRAY
-
+from .constants import GRAY, GREEN, RED, RESET, YELLOW
 
 # ============================================================================
 # VALIDATION
 # ============================================================================
 
-def validate_tool_data(actual: Any, expected: Any) -> Dict[str, Any]:
+
+def validate_tool_data(actual: Any, expected: Any) -> dict[str, Any]:
     """
     Validate tool arguments or results against expected values.
 
@@ -26,7 +26,7 @@ def validate_tool_data(actual: Any, expected: Any) -> Dict[str, Any]:
         expected: Expected value or match specification
 
     Returns:
-        Dict with {passed: bool, reason: str}
+        dict with {passed: bool, reason: str}
     """
     # If expected is a dict with special matchers
     if isinstance(expected, dict):
@@ -53,7 +53,10 @@ def validate_tool_data(actual: Any, expected: Any) -> Dict[str, Any]:
                 if key not in actual:
                     return {"passed": False, "reason": f"missing key '{key}'"}
                 if actual[key] != value:
-                    return {"passed": False, "reason": f"key '{key}' mismatch: expected {value}, got {actual[key]}"}
+                    return {
+                        "passed": False,
+                        "reason": f"key '{key}' mismatch: expected {value}, got {actual[key]}",
+                    }
             return {"passed": True, "reason": "partial match"}
 
     # Exact match
@@ -63,7 +66,7 @@ def validate_tool_data(actual: Any, expected: Any) -> Dict[str, Any]:
         return {"passed": False, "reason": f"expected {expected}, got {actual}"}
 
 
-def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[Dict[str, Any]]:
+def evaluate_assertions(response: str, expected: Any, match_mode: str) -> list[dict[str, Any]]:
     """
     Evaluate assertions based on match_mode.
 
@@ -73,17 +76,19 @@ def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[D
         match_mode: How to match (exact, contains, regex, any_of, all_of)
 
     Returns:
-        List of assertion results with {description, passed, reason}
+        list of assertion results with {description, passed, reason}
     """
     assertions = []
 
     if match_mode == "exact":
         passed = response.strip() == str(expected).strip()
-        assertions.append({
-            "description": f"exact match: {expected}",
-            "passed": passed,
-            "reason": "matched" if passed else "response differs"
-        })
+        assertions.append(
+            {
+                "description": f"exact match: {expected}",
+                "passed": passed,
+                "reason": "matched" if passed else "response differs",
+            }
+        )
 
     elif match_mode == "contains":
         # expected can be a string or list of strings
@@ -96,11 +101,13 @@ def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[D
 
         for pattern in patterns:
             passed = str(pattern) in response
-            assertions.append({
-                "description": f'contains "{pattern}"',
-                "passed": passed,
-                "reason": "found" if passed else "not found"
-            })
+            assertions.append(
+                {
+                    "description": f'contains "{pattern}"',
+                    "passed": passed,
+                    "reason": "found" if passed else "not found",
+                }
+            )
 
     elif match_mode == "regex":
         # expected can be a pattern or list of patterns
@@ -114,17 +121,21 @@ def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[D
         for pattern in patterns:
             try:
                 passed = bool(re.search(str(pattern), response))
-                assertions.append({
-                    "description": f'regex "{pattern}"',
-                    "passed": passed,
-                    "reason": "matched" if passed else "no match"
-                })
+                assertions.append(
+                    {
+                        "description": f'regex "{pattern}"',
+                        "passed": passed,
+                        "reason": "matched" if passed else "no match",
+                    }
+                )
             except re.error as e:
-                assertions.append({
-                    "description": f'regex "{pattern}"',
-                    "passed": False,
-                    "reason": f"invalid regex: {e}"
-                })
+                assertions.append(
+                    {
+                        "description": f'regex "{pattern}"',
+                        "passed": False,
+                        "reason": f"invalid regex: {e}",
+                    }
+                )
 
     elif match_mode == "any_of":
         # At least one condition must pass
@@ -138,11 +149,13 @@ def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[D
                 sub_results.extend(sub_assertions)
 
             any_passed = any(a["passed"] for a in sub_results)
-            assertions.append({
-                "description": "any_of conditions",
-                "passed": any_passed,
-                "reason": f"{sum(1 for a in sub_results if a['passed'])}/{len(sub_results)} passed"
-            })
+            assertions.append(
+                {
+                    "description": "any_of conditions",
+                    "passed": any_passed,
+                    "reason": f"{sum(1 for a in sub_results if a['passed'])}/{len(sub_results)} passed",
+                }
+            )
 
     elif match_mode == "all_of":
         # All conditions must pass
@@ -155,11 +168,13 @@ def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[D
                 assertions.extend(sub_assertions)
 
     else:
-        assertions.append({
-            "description": f"unknown match_mode: {match_mode}",
-            "passed": False,
-            "reason": "unsupported match mode"
-        })
+        assertions.append(
+            {
+                "description": f"unknown match_mode: {match_mode}",
+                "passed": False,
+                "reason": "unsupported match mode",
+            }
+        )
 
     return assertions
 
@@ -169,13 +184,7 @@ def evaluate_assertions(response: str, expected: Any, match_mode: str) -> List[D
 # ============================================================================
 
 
-
-def print_test_result(
-    result: Dict[str, Any],
-    csv_path: Path,
-    row_num: int,
-    verbose: bool = False
-):
+def print_test_result(result: dict[str, Any], csv_path: Path, row_num: int, verbose: bool = False):
     """
     Print detailed test result to terminal.
 
@@ -247,20 +256,38 @@ def print_test_result(
     # Assertions
     assertions = result.get("assertions", [])
     if assertions:
-        print(f"\nAssertions:")
+        print("\nAssertions:")
         for assertion in assertions:
             a_icon = "[✓]" if assertion["passed"] else "[✗]"
             a_color = GREEN if assertion["passed"] else RED
-            print(f"  {a_color}{a_icon}{RESET} {assertion['description']} — {assertion.get('reason', '')}")
+            print(
+                f"  {a_color}{a_icon}{RESET} {assertion['description']} — {assertion.get('reason', '')}"
+            )
 
     # Tool validation results
     if result.get("tools_expected") is not None:
         tool_status = result.get("tool_status", "OK")
         tool_color = GREEN if tool_status == "OK" else RED
-        print(f"\nTool Validation:")
-        print(f"  expected count: {len(result.get('tools_expected', []))}")
-        print(f"  actual count  : {len(result.get('tool_calls', []))}")
-        print(f"  status        : {tool_color}{tool_status}{RESET}")
+        count_mode = result.get("tools_count_mode", "exact")
+
+        # Determine expected count based on mode
+        tools_expected = result.get("tools_expected", [])
+        expected_count = len(tools_expected)
+        if count_mode == "any" and expected_count == 0:
+            expected_count = 1
+
+        # Mode descriptions
+        mode_desc = {
+            "exact": f"exactly {expected_count}",
+            "min": f"at least {expected_count}",
+            "max": f"at most {expected_count}",
+            "any": "at least 1 (any tool)",
+        }.get(count_mode, f"exactly {expected_count}")
+
+        print(f"\nTool Validation ({count_mode} mode):")
+        print(f"  expected: {mode_desc} tool(s)")
+        print(f"  actual  : {len(result.get('tool_calls', []))} tool(s)")
+        print(f"  status  : {tool_color}{tool_status}{RESET}")
 
     # Notes
     notes = result.get("notes", "")

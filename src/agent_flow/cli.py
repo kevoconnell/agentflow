@@ -23,7 +23,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         prog="agent-flow",
         description="Agent Flow - CSV-based regression testing for OpenAI Agent SDK",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -63,24 +63,18 @@ Tool Validation Modes (count_mode):
   min   - Tool count must be >= expected
   max   - Tool count must be <= expected
   any   - At least one tool must be called
-        """
+        """,
     )
 
     # Test selection arguments
     test_parser.add_argument(
-        "--filter",
-        metavar="PATTERN",
-        help="Filter tests by filename or test_id substring"
+        "--filter", metavar="PATTERN", help="Filter tests by filename or test_id substring"
     )
     test_parser.add_argument(
-        "--agents",
-        metavar="AGENT1,AGENT2",
-        help="Comma-separated list of agent IDs to test"
+        "--agents", metavar="AGENT1,AGENT2", help="Comma-separated list of agent IDs to test"
     )
     test_parser.add_argument(
-        "--tags",
-        metavar="TAG1,TAG2",
-        help="Run only tests with specific tags (comma-separated)"
+        "--tags", metavar="TAG1,TAG2", help="Run only tests with specific tags (comma-separated)"
     )
 
     # Output control arguments
@@ -88,29 +82,17 @@ Tool Validation Modes (count_mode):
         "--report",
         metavar="PATH",
         default="reports/test_report.json",
-        help="Path to JSON report output (default: reports/test_report.json)"
+        help="Path to JSON report output (default: reports/test_report.json)",
+    )
+    test_parser.add_argument("--no-report", action="store_true", help="Skip generating JSON report")
+    test_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Show full responses for all tests"
     )
     test_parser.add_argument(
-        "--no-report",
-        action="store_true",
-        help="Skip generating JSON report"
+        "--quiet", "-q", action="store_true", help="Minimal output, only show summary"
     )
     test_parser.add_argument(
-        "--verbose",
-        "-v",
-        action="store_true",
-        help="Show full responses for all tests"
-    )
-    test_parser.add_argument(
-        "--quiet",
-        "-q",
-        action="store_true",
-        help="Minimal output, only show summary"
-    )
-    test_parser.add_argument(
-        "--list",
-        action="store_true",
-        help="List all test files without running them"
+        "--list", action="store_true", help="List all test files without running them"
     )
 
     # Tool validation arguments
@@ -118,32 +100,20 @@ Tool Validation Modes (count_mode):
         "--validate-tools",
         action="store_true",
         default=True,
-        help="Enable tool call validation (default: enabled)"
+        help="Enable tool call validation (default: enabled)",
     )
     test_parser.add_argument(
-        "--no-validate-tools",
-        action="store_true",
-        help="Disable tool call validation"
+        "--no-validate-tools", action="store_true", help="Disable tool call validation"
     )
 
     # Performance arguments
+    test_parser.add_argument("--fail-fast", action="store_true", help="Stop on first test failure")
     test_parser.add_argument(
-        "--fail-fast",
-        action="store_true",
-        help="Stop on first test failure"
-    )
-    test_parser.add_argument(
-        "--timeout",
-        type=int,
-        metavar="SECONDS",
-        help="Global timeout for each test in seconds"
+        "--timeout", type=int, metavar="SECONDS", help="Global timeout for each test in seconds"
     )
 
     # List command
-    subparsers.add_parser(
-        "list",
-        help="List available agents"
-    )
+    subparsers.add_parser("list", help="List available agents")
 
     # Parse arguments
     args = parser.parse_args()
@@ -179,7 +149,7 @@ def run_csv_tests(args: argparse.Namespace) -> None:
 
             # Count tests
             try:
-                with open(csv_path, 'r', encoding='utf-8') as f:
+                with open(csv_path, encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     test_count = sum(1 for _ in reader)
                 print(f"    └─ {test_count} test(s)")
@@ -198,12 +168,14 @@ def run_csv_tests(args: argparse.Namespace) -> None:
     report_path = None if args.no_report else args.report
 
     # Run async
-    asyncio.run(run_tests(
-        filter_str=args.filter,
-        agent_filter=agent_filter,
-        report_path=report_path,
-        verbose=args.verbose
-    ))
+    asyncio.run(
+        run_tests(
+            filter_str=args.filter,
+            agent_filter=agent_filter,
+            report_path=report_path,
+            verbose=args.verbose,
+        )
+    )
 
 
 def list_resources() -> None:

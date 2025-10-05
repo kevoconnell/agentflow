@@ -128,6 +128,47 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 ```
 
+## Development
+
+### Setup
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev]"
+```
+
+### Linting and Formatting
+
+```bash
+# Run linter
+make lint
+# Auto-fix linting issues
+make format
+
+# Run all checks
+make lint && make typecheck
+```
+
+Or directly with tools:
+
+```bash
+# Ruff (linter + formatter)
+ruff check src/        # Check for issues
+ruff check --fix src/  # Auto-fix issues
+ruff format src/       # Format code
+
+# Mypy (type checker)
+mypy src/ --ignore-missing-imports
+```
+
+### Configuration
+
+Linting is configured in `pyproject.toml`:
+- **Ruff**: Fast Python linter (replaces flake8, isort, pyupgrade)
+- **Mypy**: Static type checker
+- **Line length**: 100 characters
+- **Target**: Python 3.9+
+
 ## Requirements
 
 - Python 3.9+

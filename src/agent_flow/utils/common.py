@@ -24,17 +24,17 @@ def read_file(file_path: Union[str, Path]) -> Any:
     file_path = Path(file_path)
     suffix = file_path.suffix.lower()
 
-    if suffix == '.json':
-        with open(file_path, 'r', encoding='utf-8') as f:
+    if suffix == ".json":
+        with open(file_path, encoding="utf-8") as f:
             return json.load(f)
 
-    elif suffix == '.csv':
-        with open(file_path, 'r', encoding='utf-8') as f:
+    elif suffix == ".csv":
+        with open(file_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             return list(reader)
 
     else:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             return f.read()
 
 
@@ -57,22 +57,22 @@ def write_file(file_path: Union[str, Path], content: Any, **kwargs):
 
     suffix = file_path.suffix.lower()
 
-    if suffix == '.json':
-        indent = kwargs.get('indent', 2)
-        with open(file_path, 'w', encoding='utf-8') as f:
+    if suffix == ".json":
+        indent = kwargs.get("indent", 2)
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(content, f, indent=indent)
 
-    elif suffix == '.csv':
-        fieldnames = kwargs.get('fieldnames')
+    elif suffix == ".csv":
+        fieldnames = kwargs.get("fieldnames")
         if not fieldnames and content:
             # Auto-detect fieldnames from first row
             fieldnames = list(content[0].keys()) if isinstance(content, list) and content else []
 
-        with open(file_path, 'w', encoding='utf-8', newline='') as f:
+        with open(file_path, "w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(content)
 
     else:
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(str(content))

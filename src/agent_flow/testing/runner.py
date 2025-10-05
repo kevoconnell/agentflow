@@ -4,29 +4,28 @@ import json
 import sys
 from collections import defaultdict
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from ..loader import resolve_agent
 from ..utils.common import read_file, write_file
+from .constants import GRAY, GREEN, RED, RESET, YELLOW
 from .discovery import find_csv_files
 from .executor import run_test
 from .utils import print_test_result
-from .constants import GREEN, RED, YELLOW, RESET, GRAY
-
 
 
 async def run_tests(
     filter_str: Optional[str] = None,
-    agent_filter: Optional[List[str]] = None,
+    agent_filter: Optional[list[str]] = None,
     report_path: Optional[str] = None,
-    verbose: bool = False
+    verbose: bool = False,
 ):
     """
     Main test runner function. Discovers and executes CSV-based regression tests.
 
     Args:
         filter_str: Filter tests by filename or test_id substring
-        agent_filter: List of agent IDs to test (None = all agents)
+        agent_filter: list of agent IDs to test (None = all agents)
         report_path: Path to save JSON report (None = no report)
         verbose: If True, show full response content instead of excerpts
 
@@ -65,7 +64,6 @@ async def run_tests(
                 except json.JSONDecodeError:
                     agent_refs = [agent_refs_str]
             else:
-
                 agent_refs = [default_agent_id or ""]
 
             for agent_ref in agent_refs:
@@ -104,18 +102,20 @@ async def run_tests(
                     print(f"\n✗ {test_id} :: {agent_ref} [ERROR]")
                     print(f"  Error loading/running: {e}")
 
-                    all_results.append({
-                        "test_id": test_id,
-                        "agent_ref": agent_ref,
-                        "status": "ERROR",
-                        "error": str(e),
-                        "latency_ms": 0,
-                        "csv_file": str(csv_path)
-                    })
+                    all_results.append(
+                        {
+                            "test_id": test_id,
+                            "agent_ref": agent_ref,
+                            "status": "ERROR",
+                            "error": str(e),
+                            "latency_ms": 0,
+                            "csv_file": str(csv_path),
+                        }
+                    )
 
     # Summary
     print("\n" + "=" * 60)
-    print(f"📊 Test Summary")
+    print("📊 Test Summary")
     print("=" * 60)
     print(f"Total:   {total_tests}")
     print(f"✓ Passed: {passed}")
@@ -140,7 +140,7 @@ async def run_tests(
 
     if results_by_file:
         print("\n" + "=" * 60)
-        print(f"📋 Detailed Results by File")
+        print("📋 Detailed Results by File")
         print("=" * 60)
 
         for csv_file in sorted(results_by_file.keys()):
@@ -152,8 +152,9 @@ async def run_tests(
             total_for_file = len(passed_tests) + len(failed_tests) + len(error_tests)
 
             print(f"\n{GRAY}File: {csv_file}{RESET}")
-            print(f"  Total: {total_for_file} | Passed: {len(passed_tests)} | Failed: {len(failed_tests)} | Errors: {len(error_tests)}")
-
+            print(
+                f"  Total: {total_for_file} | Passed: {len(passed_tests)} | Failed: {len(failed_tests)} | Errors: {len(error_tests)}"
+            )
 
             if passed_tests:
                 print(f"\n  {GREEN}✓ Passed Tests:{RESET}")
@@ -167,7 +168,6 @@ async def run_tests(
                     note_str = f" - {notes}" if notes else ""
                     print(f"    • {test_id} ({latency}ms, {num_assertions} assertions){note_str}")
 
-
             if failed_tests:
                 print(f"\n  {RED}✗ Failed Tests:{RESET}")
                 for test in failed_tests:
@@ -180,7 +180,6 @@ async def run_tests(
                     note_str = f" - {notes}" if notes else ""
                     print(f"    • {test_id} ({latency}ms){note_str}")
 
-                    
                     if failed_assertions:
                         for assertion in failed_assertions:
                             desc = assertion.get("description", "unknown")
@@ -207,9 +206,9 @@ async def run_tests(
                 "passed": passed,
                 "failed": failed,
                 "errors": errors,
-                "skipped": skipped
+                "skipped": skipped,
             },
-            "results": all_results
+            "results": all_results,
         }
 
         write_file(report_path, report)

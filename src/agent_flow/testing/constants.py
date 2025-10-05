@@ -1,8 +1,16 @@
 REQUIRED_COLUMNS = {"test_id", "messages", "expected_json", "match_mode"}
 SEARCH_PATHS = ["."]  # Search from current directory
 OPTIONAL_COLUMNS = {
-    "agent_refs", "tools_expected_json", "model", "temperature", "seed",
-    "max_latency_ms", "max_cost_usd", "tags", "skip", "notes"
+    "agent_refs",
+    "tools_expected_json",
+    "model",
+    "temperature",
+    "seed",
+    "max_latency_ms",
+    "max_cost_usd",
+    "tags",
+    "skip",
+    "notes",
 }
 
 GREEN = "\033[92m"

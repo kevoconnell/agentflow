@@ -15,7 +15,6 @@ Test your agents with CSV test definitions:
 Note: The openai-agents package (pip install openai-agents) provides the 'agents' module.
 """
 
-from .compat import get_shared_client 
 from .loader import find_agent_files, load_agent, resolve_agent
 
 __version__ = "0.1.0"
@@ -25,6 +24,5 @@ __all__ = [
     "load_agent",
     "find_agent_files",
     "resolve_agent",
-
-        "get_shared_client",
+    "get_shared_client",
 ]

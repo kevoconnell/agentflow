@@ -2,12 +2,14 @@
 
 import csv
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from .constants import REQUIRED_COLUMNS
 
 
-def find_csv_files(root: Path = Path.cwd(), filter_str: Optional[str] = None) -> List[Tuple[Path, Optional[str]]]:
+def find_csv_files(
+    root: Path = Path.cwd(), filter_str: Optional[str] = None
+) -> list[tuple[Path, Optional[str]]]:
     """
     Recursively find all CSV test files.
 
@@ -20,7 +22,7 @@ def find_csv_files(root: Path = Path.cwd(), filter_str: Optional[str] = None) ->
         filter_str: Filter pattern to match in filename (e.g., "calculator" matches "calculator.csv")
 
     Returns:
-        List of (csv_path, agent_id) tuples where agent_id is derived from
+        list of (csv_path, agent_id) tuples where agent_id is derived from
         folder structure. Only returns valid CSV files.
     """
     results = []
@@ -59,7 +61,7 @@ def find_csv_files(root: Path = Path.cwd(), filter_str: Optional[str] = None) ->
     return sorted(results)
 
 
-def validate_csv(csv_path: Path) -> Tuple[bool, Optional[str]]:
+def validate_csv(csv_path: Path) -> tuple[bool, Optional[str]]:
     """
     Validate that CSV has required columns.
 
@@ -70,7 +72,7 @@ def validate_csv(csv_path: Path) -> Tuple[bool, Optional[str]]:
         (is_valid, error_message) tuple. error_message is None if valid.
     """
     try:
-        with open(csv_path, 'r', encoding='utf-8') as f:
+        with open(csv_path, encoding="utf-8") as f:
             reader = csv.DictReader(f)
             headers = set(reader.fieldnames or [])
 
