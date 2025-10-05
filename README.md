@@ -100,6 +100,38 @@ All conditions must pass:
 - Verify `expected_json` format matches the mode
 - Use `--verbose` to see full responses
 
+## CI/CD Integration
+
+### GitHub Actions
+
+Add your OpenAI API key as a repository secret (`OPENAI_API_KEY`), then tests will run automatically on every push and PR.
+
+The repository includes two workflows:
+- **`.github/workflows/test.yml`** - Runs agent tests across Python 3.9-3.12
+- **`.github/workflows/lint.yml`** - Lints code with ruff and mypy
+
+Example workflow:
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e .
+      - run: agent-flow test
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
+## Requirements
+
+- Python 3.9+
+- OpenAI API key
 
 ## License
 
