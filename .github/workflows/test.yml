@@ -33,7 +33,6 @@ jobs:
        cd examples/calculator && agent-flow list
 
     - name: Run calculator tests
-      if: steps.check_key.outputs.has_key == 'true'
       run: |
         cd examples/calculator
         agent-flow test --verbose
