@@ -1,0 +1,7 @@
+test_id,messages,match_mode,expected_json,tools_expected_json,max_latency_ms,notes,skip
+simple_add,"[{""role"": ""user"", ""content"": ""What is 5 plus 3?""}]",contains,8,"{""tools"": [{""name"": ""add""}], ""count_mode"": ""exact""}",10000,Verify exactly 1 tool call is made,
+multi_step_calculation,"[{""role"": ""user"", ""content"": ""Calculate (5 + 3) * 2""}]",contains,16,"{""tools"": [{""name"": ""add""}, {""name"": ""multiply""}], ""count_mode"": ""exact""}",10000,Verify exactly 2 tool calls are made,
+min_tool_calls,"[{""role"": ""user"", ""content"": ""What is (10 + 5) * 2 - 10?""}]",regex,"""\\b20\\b""","{""tools"": [{""name"": ""add""}, {""name"": ""multiply""}], ""count_mode"": ""min""}",10000,Verify at least 2 tool calls are made,
+division_with_result,"[{""role"": ""user"", ""content"": ""What is 10 divided by 2?""}]",contains,5,"{""tools"": [{""name"": ""divide"", ""arguments"": {""a"": 10, ""b"": 2}, ""result"": 5.0}], ""count_mode"": ""exact""}",10000,Verify tool call count and validate arguments/result,
+any_tool_used,"[{""role"": ""user"", ""content"": ""Can you multiply 7 by 6?""}]",contains,42,"{""tools"": [], ""count_mode"": ""any""}",10000,Verify at least one tool is called (any tool),
+max_tool_calls,"[{""role"": ""user"", ""content"": ""What is 100 plus 50?""}]",contains,150,"{""tools"": [{""name"": ""add""}], ""count_mode"": ""max""}",10000,Verify at most 1 tool call is made,

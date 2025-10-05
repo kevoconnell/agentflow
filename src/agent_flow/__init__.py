@@ -1,38 +1,30 @@
 """
-agent_flow: Minimal multi-agent workflow orchestration using OpenAI Agents SDK.
+agent_flow: CSV-based regression testing for OpenAI Agents SDK.
 
-Import SDK agents directly and compose them into workflows:
+Test your agents with CSV test definitions:
 
     from agents import Agent  # OpenAI Agents SDK
-    from agent_flow import FlowSpec, Handoff, Flow
 
-    # Create agents using the OpenAI Agents SDK directly
-    researcher = Agent(name="researcher", model="gpt-4", instructions="Research topics")
-    writer = Agent(name="writer", model="gpt-4", instructions="Write content")
+    # Create agents
+    calculator = Agent(name="calculator", model="gpt-4o-mini",
+                      instructions="You are a helpful calculator")
 
-    # Compose into a workflow
-    spec = FlowSpec(agents={"researcher": researcher, "writer": writer})
-
-    flow = Flow(spec)
+    # Define tests in CSV files
+    # Run with: agent-flow test
 
 Note: The openai-agents package (pip install openai-agents) provides the 'agents' module.
 """
 
-from .compat import get_shared_client  # Initialize client on import
-from .flow import Flow
-from .loader import find_workflow_files, load_workflow
-from .types import FlowSpec
+from .compat import get_shared_client 
+from .loader import find_agent_files, load_agent, resolve_agent
 
 __version__ = "0.1.0"
 
 __all__ = [
-    # Core types
-    "FlowSpec",
-    # Flow execution
-    "Flow",
-    # Workflow loading
-    "load_workflow",
-    "find_workflow_files",
-    # Client access
-    "get_shared_client",
+    # Agent loading
+    "load_agent",
+    "find_agent_files",
+    "resolve_agent",
+
+        "get_shared_client",
 ]
