@@ -3,26 +3,16 @@ Compatibility layer for OpenAI Agents SDK.
 All SDK imports go through here to isolate against API changes.
 """
 
-from typing import Any, Dict
 import os
+
+from agents import set_default_openai_api, set_default_openai_client, set_tracing_disabled
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 # Load environment variables from .env file
 load_dotenv()
 
 
-
-
-from agents import Agent as SdkAgent, RunConfig 
-from agents.items import MessageOutputItem as Message
-
-
-
-from openai import AsyncOpenAI
-from agents import set_default_openai_client, set_tracing_disabled, set_default_openai_api
-
-# Create shared client using environment variables
-# OPENAI_API_KEY and OPENAI_BASE_URL are automatically picked up by AsyncOpenAI
 _api_key = os.getenv("OPENAI_API_KEY")
 _base_url = os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1"
 _response_type = os.getenv("OPENAI_RESPONSE_TYPE", "responses").lower() or "responses"
@@ -32,18 +22,13 @@ if not _api_key:
 if not _base_url:
     raise ValueError("OPENAI_BASE_URL environment variable is not set")
 
-# Validate response type
+
 if _response_type not in ["chat_completions", "responses"]:
     raise ValueError("OPENAI_RESPONSE_TYPE must be either 'chat_completions' or 'responses'")
 
-_shared_client = AsyncOpenAI(
-    api_key=_api_key,
-    base_url=_base_url
-)
+_shared_client = AsyncOpenAI(api_key=_api_key, base_url=_base_url)
 
 
-
-# Set as default for all agents
 set_default_openai_client(_shared_client)
 
 # Configure API type based on environment variable
@@ -53,51 +38,18 @@ api_type = "chat_completions" if _response_type == "chat_completions" else "resp
 set_default_openai_api(api_type)
 
 # disable if base api is not openai
-if not "openai.com" in _base_url:
+if "openai.com" not in _base_url:
     set_tracing_disabled(True)
 else:
     set_tracing_disabled(False)
 
 
-
-
 # Re-export SDK types for internal use
 __all__ = [
-    "Message",
-    "AgentConfig",
-    "SdkAgent",
-    "SdkAgentConfig",
     "get_shared_client",
 ]
-
-
-
-
-def create_message(role: str, content: str) -> Message:
-    """Create a Message instance compatible with the SDK."""
-    return Message(role=role, content=content)
 
 
 def get_shared_client() -> AsyncOpenAI:
     """Get the shared OpenAI client configured with environment variables."""
     return _shared_client
-
-
-def create_agent_config(
-    name: str,
-    model: str,
-    instructions: str | None = None,
-    **extras: Any
-) -> RunConfig:
-    """Create an AgentConfig instance compatible with the SDK."""
-    config_kwargs: Dict[str, Any] = {
-        "name": name,
-        "model": model,
-    }
-
-    if instructions is not None:
-        config_kwargs["instructions"] = instructions
-
-    config_kwargs.update(extras)
-
-    return RunConfig(**config_kwargs)

@@ -1,214 +1,179 @@
-# AgentFlow
+# CSV Test Runner for Agent Flow
 
-Multi-agent workflow orchestration with a visual playground UI.
-
-## What is AgentFlow?
-
-A lightweight Python library for building and testing multi-agent AI workflows with an interactive web interface.
-
-**Key Features:**
-- 🎨 **Visual Playground** - Interactive UI for developing and testing agents
-- 🔄 **Multi-Agent Orchestration** - Seamless handoffs between specialized agents
-- ⚡ **Real-time Streaming** - Live agent responses with tool visibility
-- 🎛️ **Dynamic Controls** - Configure agent parameters on the fly
+Automated regression testing for OpenAI Agent SDK agents using CSV test definitions.
 
 ## Quick Start
 
-### 1. Install
+```bash
+pip install agent-flow 
+# Run all tests
+agent-flow test
+
+# Run tests for specific agent
+agent-flow test --filter=calculator
+
+# Run with verbose output
+agent-flow test --verbose
+
+# Custom report location
+agent-flow test --report=my_tests/results.json
+```
+
+## CSV Test Format
+
+### Required Columns
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `test_id` | string | Unique test identifier (e.g., `calc_001`) |
+| `messages` | JSON | Array of chat messages: `[{"role":"user","content":"..."}]` |
+| `expected_json` | JSON | Expected output specification |
+| `match_mode` | string | How to match: `exact`, `contains`, `regex`, `any_of`, `all_of` |
+
+### Optional Columns
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `agent_refs` | JSON | Multi-agent test: `["agent1", "agent2"]` |
+| `tools_expected_json` | JSON | Expected tool calls |
+| `model` | string | Model override (e.g., `gpt-4o-mini`) |
+| `temperature` | float | Sampling temperature (0-1) |
+| `seed` | int | Random seed for deterministic runs |
+| `max_latency_ms` | int | Fail if response exceeds this latency |
+| `max_cost_usd` | float | Fail if cost exceeds this limit |
+| `tags` | string | Comma-separated labels |
+| `skip` | bool | Skip this test (`true`/`false`) |
+| `notes` | string | Human-readable notes |
+
+## Example CSV
+
+```csv
+test_id,messages,expected_json,match_mode,max_latency_ms,notes
+calc_001,"[{""role"":""user"",""content"":""What is 2 + 3?""}]","{""contains"":[""5""]}",contains,5000,Basic addition
+calc_002,"[{""role"":""user"",""content"":""Multiply 4 by 7""}]","{""contains"":[""28""]}",contains,5000,Multiplication test
+```
+
+## Match Modes
+
+### `exact`
+Response must match exactly:
+```json
+{"expected": "The answer is 5"}
+```
+
+### `contains`
+Response must contain all substrings:
+```json
+{"contains": ["answer", "5", "correct"]}
+```
+
+### `regex`
+Response must match regex patterns:
+```json
+{"regex": ["answer.*\\d+", "\\b5\\b"]}
+```
+
+### `any_of`
+At least one condition must pass:
+```json
+{
+  "any_of": [
+    {"mode": "contains", "value": "5"},
+    {"mode": "contains", "value": "five"}
+  ]
+}
+```
+
+### `all_of`
+All conditions must pass:
+```json
+{
+  "all_of": [
+    {"mode": "contains", "value": "answer"},
+    {"mode": "regex", "value": "\\d+"}
+  ]
+}
+```
+
+### Tests always pass
+- Check `match_mode` is correct
+- Verify `expected_json` format matches the mode
+- Use `--verbose` to see full responses
+
+## CI/CD Integration
+
+### GitHub Actions
+
+Add your OpenAI API key as a repository secret (`OPENAI_API_KEY`), then tests will run automatically on every push and PR.
+
+The repository includes two workflows:
+- **`.github/workflows/test.yml`** - Runs agent tests across Python 3.9-3.12
+- **`.github/workflows/lint.yml`** - Lints code with ruff and mypy
+
+Example workflow:
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -e .
+      - run: agent-flow test
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+```
+
+## Development
+
+### Setup
 
 ```bash
-pip install agent-flow
+# Install with dev dependencies
+pip install -e ".[dev]"
 ```
 
-### 2. Configure API Keys
-
-Copy the example environment file:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and add your API keys:
-```bash
-OPENAI_API_KEY=sk-your-api-key-here
-```
-
-### 3. Launch the Playground
+### Linting and Formatting
 
 ```bash
-agent-flow dev
+# Run linter
+make lint
+# Auto-fix linting issues
+make format
+
+# Run all checks
+make lint && make typecheck
 ```
 
-Opens `http://localhost:4200` with an interactive UI.
-
-## Commands
+Or directly with tools:
 
 ```bash
-# Start the visual playground
-agent-flow dev
+# Ruff (linter + formatter)
+ruff check src/        # Check for issues
+ruff check --fix src/  # Auto-fix issues
+ruff format src/       # Format code
 
-# Start with custom host/port
-agent-flow dev --host=0.0.0.0 --port=8000
-
-# Force rebuild the UI
-agent-flow dev --rebuild
-
-# Open without browser
-agent-flow dev --no-browser
-
-# List all available agents
-agent-flow list
+# Mypy (type checker)
+mypy src/ --ignore-missing-imports
 ```
 
-## Creating Your First Agent
+### Configuration
 
-Create a file named `my_agent.agent.py`:
-
-```python
-from agent_flow import FlowSpec
-from agents import Agent, function_tool
-
-@function_tool
-def get_weather(city: str) -> str:
-    """Get the current weather for a city."""
-    return f"The weather in {city} is sunny, 22°C"
-
-weather_agent = Agent(
-    name="weather",
-    model="gpt-4o-mini",
-    instructions="Use tools to get weather information.",
-    tools=[get_weather],
-)
-
-FLOW = FlowSpec(agents={"weather": weather_agent})
-```
-
-Run `agent-flow dev` and your agent will appear in the playground!
-
-## Adding Controls
-
-Make your agents configurable with UI controls:
-
-```python
-from agent_flow import FlowSpec
-from agents import Agent
-
-CONTROLS = [
-    {
-        "name": "temperature",
-        "type": "number",
-        "label": "Response Temperature",
-        "defaultValue": 0.7,
-        "min": 0,
-        "max": 1,
-        "description": "Controls randomness of responses"
-    },
-    {
-        "name": "language",
-        "type": "select",
-        "label": "Response Language",
-        "options": ["English", "Spanish", "French"],
-        "defaultValue": "English"
-    }
-]
-
-my_agent = Agent(
-    name="assistant",
-    model="gpt-4o-mini",
-    instructions="You are a helpful assistant.",
-)
-
-FLOW = FlowSpec(
-    agents={"assistant": my_agent},
-    controls=CONTROLS
-)
-```
-
-Controls appear in the right sidebar and can be adjusted in real-time!
-
-## Multi-Agent Workflows
-
-Create complex workflows with agent handoffs:
-
-```python
-from agent_flow import FlowSpec
-from agents import Agent
-
-# Specialized research agent
-researcher = Agent(
-    name="researcher",
-    model="gpt-4o-mini",
-    instructions="Research topics and gather information.",
-)
-
-# Advisor that researcher can hand off to
-advisor = Agent(
-    name="advisor",
-    model="gpt-4o-mini",
-    instructions="Provide expert advice and recommendations.",
-)
-
-# Connect agents with handoffs
-researcher.handoffs = [advisor]
-
-FLOW = FlowSpec(
-    agents={
-        "researcher": researcher,
-        "advisor": advisor
-    }
-)
-```
-
-## Examples
-
-Check out the `examples/` directory:
-
-- **`calculator/calculator_flow.py`** - Basic calculator with tools
-- **`calculator/advanced_flow.py`** - Dynamic controls example
-- **`weather.workflow.py`** - Weather agent with tools
-- **`researcher.workflow.py`** - Multi-agent workflow
-
-## Project Structure
-
-```
-agent_flow/
-├── src/agent_flow/        # Core library
-│   ├── api.py            # FastAPI server
-│   ├── flow.py           # Workflow orchestrator
-│   ├── loader.py         # Auto-discovery
-│   └── cli.py            # CLI commands
-├── ui/                    # React playground
-├── examples/              # Example agents
-└── .env                   # Your API keys (gitignored)
-```
-
-## File Naming Convention
-
-AgentFlow automatically discovers files with these suffixes:
-- `.agent.py` - Single agent definitions
-- `.workflow.py` - Multi-agent workflows
-
-Both formats work identically - choose based on your preference!
+Linting is configured in `pyproject.toml`:
+- **Ruff**: Fast Python linter (replaces flake8, isort, pyupgrade)
+- **Mypy**: Static type checker
+- **Line length**: 100 characters
+- **Target**: Python 3.9+
 
 ## Requirements
 
-- Python 3.11+
-- Node.js 18+ (for UI development)
-- OpenAI API key or Anthropic API key
-
-## Dependencies
-
-- `openai-agents>=0.3,<0.4` - OpenAI Agents SDK
-- `fastapi` - Web server
-- `uvicorn` - ASGI server
-
-## Tips
-
-- **Live Reload**: The playground auto-reloads when you save `.agent.py` files
-- **Markdown Support**: Agent responses support full markdown formatting
-- **Tool Visibility**: See tool calls and outputs in real-time
-- **Theme Toggle**: Switch between light/dark mode with the toggle in the header
-- **Agent Editor**: Edit agent instructions directly in the UI (temporary changes)
+- Python 3.9+
+- OpenAI API key
 
 ## License
 
-MIT
+Apache 2.0

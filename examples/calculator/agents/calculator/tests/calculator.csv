@@ -1,0 +1,5 @@
+test_id,messages,expected_json,match_mode,max_latency_ms,notes
+calc_001,"[{""role"":""user"",""content"":""What is 2 plus 3?""}]","{""contains"":[""5""]}",contains,5000,Basic addition test
+calc_002,"[{""role"":""user"",""content"":""Multiply 4 by 7""}]","{""contains"":[""28""]}",contains,5000,Basic multiplication test
+calc_003,"[{""role"":""user"",""content"":""What is 10 divided by 2?""}]","{""contains"":[""5""]}",contains,5000,Basic division test
+calc_004,"[{""role"":""user"",""content"":""Calculate 15 + 25""}]","{""contains"":[""40""]}",contains,5000,Addition with larger numbers

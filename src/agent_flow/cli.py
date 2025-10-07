@@ -1,281 +1,198 @@
 """
-CLI for agent_flow with dev mode and hot-reload.
+CLI for agent_flow CSV test runner.
 """
 
+import argparse
+import asyncio
+import csv
 import sys
-import time
-from pathlib import Path
-from typing import Optional
 
-from .flow import Flow
-from .loader import (
-    WORKFLOW_SUFFIX,
-    find_workflow_files,
-    load_all_agents,
-    load_workflow,
-)
+from .loader import load_all_agents
+from .testing import find_csv_files, run_tests
 
 
 def main() -> None:
     """
-    Main CLI entry point.
+    Main CLI entry point for agent_flow.
 
-    Usage:
-        agent-flow dev
-        agent-flow list
-        agent-flow test [test_file.test.py]
+    Supports:
+        agent-flow test [options]   - Run CSV regression tests
+        agent-flow list             - List available agents
     """
-    args = sys.argv[1:]
+    # Create main parser
+    parser = argparse.ArgumentParser(
+        prog="agent-flow",
+        description="Agent Flow - CSV-based regression testing for OpenAI Agent SDK",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
 
-    if not args:
-        print("Usage: agent-flow <command> [options]")
-        print("\nCommands:")
-        print("  dev              Start web UI playground (default)")
-        print("                   Options: --host=HOST --port=PORT --rebuild --no-browser")
-        print("  test             Run tests with pytest")
-        print("  list             List agents and workflows")
-        sys.exit(1)
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    command = args[0]
-    if command == "dev":
-        run_ui(args[1:])
-    elif command == "test":
-        run_tests(args[1:])
-    elif command == "list":
+    # Test command
+    test_parser = subparsers.add_parser(
+        "test",
+        help="Run CSV regression tests",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Run all tests
+  agent-flow test
+
+  # Run tests for specific agent
+  agent-flow test --agents calculator
+
+  # Run tests matching pattern
+  agent-flow test --filter "basic_math"
+
+  # Run with custom report path
+  agent-flow test --report ./my-report.json
+
+  # Show full verbose output
+  agent-flow test --verbose
+
+  # List available test files without running
+  agent-flow test --list
+
+CSV Column Reference:
+  Required: test_id, messages, expected_json, match_mode
+  Optional: agent_refs, tools_expected_json, model, temperature, seed,
+            max_latency_ms, max_cost_usd, tags, skip, notes
+
+Tool Validation Modes (count_mode):
+  exact - Tool count must equal expected (default)
+  min   - Tool count must be >= expected
+  max   - Tool count must be <= expected
+  any   - At least one tool must be called
+        """,
+    )
+
+    # Test selection arguments
+    test_parser.add_argument(
+        "--filter", metavar="PATTERN", help="Filter tests by filename or test_id substring"
+    )
+    test_parser.add_argument(
+        "--agents", metavar="AGENT1,AGENT2", help="Comma-separated list of agent IDs to test"
+    )
+    test_parser.add_argument(
+        "--tags", metavar="TAG1,TAG2", help="Run only tests with specific tags (comma-separated)"
+    )
+
+    # Output control arguments
+    test_parser.add_argument(
+        "--report",
+        metavar="PATH",
+        default="reports/test_report.json",
+        help="Path to JSON report output (default: reports/test_report.json)",
+    )
+    test_parser.add_argument("--no-report", action="store_true", help="Skip generating JSON report")
+    test_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Show full responses for all tests"
+    )
+    test_parser.add_argument(
+        "--quiet", "-q", action="store_true", help="Minimal output, only show summary"
+    )
+    test_parser.add_argument(
+        "--list", action="store_true", help="List all test files without running them"
+    )
+
+    # Tool validation arguments
+    test_parser.add_argument(
+        "--validate-tools",
+        action="store_true",
+        default=True,
+        help="Enable tool call validation (default: enabled)",
+    )
+    test_parser.add_argument(
+        "--no-validate-tools", action="store_true", help="Disable tool call validation"
+    )
+
+    # Performance arguments
+    test_parser.add_argument("--fail-fast", action="store_true", help="Stop on first test failure")
+    test_parser.add_argument(
+        "--timeout", type=int, metavar="SECONDS", help="Global timeout for each test in seconds"
+    )
+
+    # List command
+    subparsers.add_parser("list", help="List available agents")
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Handle commands
+    if args.command == "test":
+        run_csv_tests(args)
+    elif args.command == "list":
         list_resources()
     else:
-        print(f"Unknown command: {command}")
-        print("Run 'agent-flow' for usage")
+        parser.print_help()
         sys.exit(1)
 
-def run_dev_mode(args: list[str]) -> None:
+
+def run_csv_tests(args: argparse.Namespace) -> None:
     """
-    Run dev mode with a workflow.
+    Run CSV-based regression tests.
 
     Args:
-        args: Command-line arguments after 'dev'
+        args: Parsed command-line arguments
     """
+    # List mode
+    if args.list:
+        csv_files = find_csv_files()
+        if not csv_files:
+            print("No CSV test files found")
+            return
 
-    # Parse workflow file argument
-    workflow_path: Optional[Path] = None
-    if len(args) > 0:
-        workflow_path = Path(args[0])
-        if not workflow_path.exists():
-            print(f"Error: Workflow file not found: {workflow_path}")
-            sys.exit(1)
-    else:
-        # Auto-discover workflow file
-        workflow_files = find_workflow_files()
-        if not workflow_files:
-            print(f"Error: No *{WORKFLOW_SUFFIX} files found in current directory")
-            sys.exit(1)
+        print("📋 Available test files:\n")
+        for csv_path, agent_id in csv_files:
+            agent_str = f"(agent: {agent_id})" if agent_id else "(cross-agent)"
+            print(f"  • {csv_path} {agent_str}")
 
-
-        preferred = [f for f in workflow_files if f.name == f"app{WORKFLOW_SUFFIX}"]
-        workflow_path = preferred[0] if preferred else workflow_files[0]
-
-        if len(workflow_files) > 1:
-            print(f"Multiple workflow files found. Using: {workflow_path}")
-            print("Available workflows:")
-            for wf in workflow_files:
-                marker = " (active)" if wf == workflow_path else ""
-                print(f"  - {wf}{marker}")
-            print("\nTo switch workflows, run: agent-flow dev <workflow_file>\n")
-
-    # Show available agents
-    agents = load_all_agents()
-    if agents:
-        print(f"📦 Loaded {len(agents)} agent(s): {', '.join(agents.keys())}\n")
-
-    # Run dev loop
-    dev_loop(workflow_path)
-
-
-def run_ui(args: list[str]) -> None:
-    """
-    Start the web UI playground.
-
-    Args:
-        args: Command-line arguments after 'dev'
-    """
-    from .api import start_ui
-
-    # Parse optional host, port, rebuild, and browser flag
-    host = "127.0.0.1"
-    port = 4200
-    open_browser = True
-    rebuild = False
-
-    for arg in args:
-        if arg.startswith("--host="):
-            host = arg.split("=")[1]
-        elif arg.startswith("--port="):
-            port = int(arg.split("=")[1])
-        elif arg == "--no-browser":
-            open_browser = False
-        elif arg == "--rebuild":
-            rebuild = True
-
-    # Show what workflows were found
-    workflow_files = find_workflow_files()
-    if workflow_files:
-        print(f"📦 Found {len(workflow_files)} workflow(s):")
-        for wf in workflow_files:
-            print(f"  - {wf.name}")
-        print()
-
-    start_ui(host=host, port=port, rebuild=rebuild, open_browser=open_browser)
-
-
-def dev_loop(workflow_path: Path) -> None:
-    """
-    Development loop with hot-reload.
-
-    Args:
-        workflow_path: Path to the workflow file to run
-    """
-    print(f"Running workflow: {workflow_path}")
-    print(f"Watching for changes... (Ctrl+C to exit)\n")
-
-    current_flow: Optional[Flow] = None
-    last_mtime = 0.0
-
-    try:
-        while True:
-            # Check if file has been modified
-            current_mtime = workflow_path.stat().st_mtime
-
-            if current_mtime > last_mtime:
-                try:
-                    # Reload workflow
-                    spec = load_workflow(workflow_path)
-                    current_flow = Flow(spec)
-                    last_mtime = current_mtime
-
-                    if last_mtime > 0:  # Not the first load
-                        print(f"\n🔄 Workflow reloaded from {workflow_path}\n")
-
-                except Exception as e:
-                    print(f"\n❌ Error loading workflow: {e}\n")
-                    time.sleep(1)
-                    continue
-
-            # Only prompt if we have a valid flow
-            if current_flow is None:
-                time.sleep(0.5)
-                continue
-
-            # Prompt for input
+            # Count tests
             try:
-                user_input = input("Enter prompt> ").strip()
-            except EOFError:
-                print("\nExiting...")
-                break
+                with open(csv_path, encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    test_count = sum(1 for _ in reader)
+                print(f"    └─ {test_count} test(s)")
+            except Exception:
+                pass
 
-            if not user_input:
-                continue
+        print(f"\nTotal: {len(csv_files)} test file(s)")
+        return
 
-            # Run the flow
-            print()  # Blank line before output
-            try:
-                current_agent = None
-                for agent_name, chunk in current_flow.run(user_input):
-                    # Print agent name when switching agents
-                    if agent_name != current_agent:
-                        if current_agent is not None:
-                            print()  # Blank line between agents
-                        print(f"[{agent_name}]", end=" ", flush=True)
-                        current_agent = agent_name
+    # Parse filters
+    agent_filter = None
+    if args.agents:
+        agent_filter = [a.strip() for a in args.agents.split(",")]
 
-                    # Print chunk
-                    sys.stdout.write(chunk)
-                    sys.stdout.flush()
+    # Determine report path
+    report_path = None if args.no_report else args.report
 
-                print("\n")  # Blank line after output
-
-            except KeyboardInterrupt:
-                print("\n\nInterrupted. Ready for next prompt.\n")
-                continue
-            except Exception as e:
-                print(f"\n❌ Error running flow: {e}\n")
-                continue
-
-    except KeyboardInterrupt:
-        print("\n\nExiting...")
-        sys.exit(0)
-
-
-def run_tests(args: list[str]) -> None:
-    """
-    Run tests with pytest.
-
-    Args:
-        args: Command-line arguments after 'test'
-    """
-    import subprocess
-    from pathlib import Path
-
-    # Find test files
-    test_files = list(Path.cwd().rglob("*.test.py"))
-
-    if not test_files:
-        print("No test files found (*.test.py)")
-        sys.exit(1)
-
-    print(f"📝 Found {len(test_files)} test file(s):")
-    for test_file in test_files:
-        print(f"  - {test_file}")
-    print()
-
-    # Determine which tests to run
-    if args:
-        # Run specific test file
-        test_path = Path(args[0])
-        if not test_path.exists():
-            print(f"Error: Test file not found: {test_path}")
-            sys.exit(1)
-        cmd = ["pytest", str(test_path), "-v"]
-    else:
-        # Run all tests
-        cmd = ["pytest"] + [str(f) for f in test_files] + ["-v"]
-
-    print("🧪 Running tests...\n")
-    result = subprocess.run(cmd)
-    sys.exit(result.returncode)
+    # Run async
+    asyncio.run(
+        run_tests(
+            filter_str=args.filter,
+            agent_filter=agent_filter,
+            report_path=report_path,
+            verbose=args.verbose,
+        )
+    )
 
 
 def list_resources() -> None:
-    """List all available agents and workflows."""
-    from pathlib import Path
+    """List all available agents."""
+    print("📦 Available Agents\n")
 
-    print("📦 Available Resources\n")
+    # Load all agents
+    agents = load_all_agents()
 
-    # Find agent files
-    agent_files = list(Path.cwd().rglob("*.agent.py"))
-    if agent_files:
+    if agents:
         print("🤖 Agents:")
-        for agent_file in sorted(agent_files):
-            print(f"  - {agent_file.stem.replace('.agent', '')} ({agent_file})")
+        for name, agent in sorted(agents.items()):
+            model = getattr(agent, "model", "unknown")
+            print(f"  - {name} (model: {model})")
         print()
-
-    # Find workflow files
-    workflow_files = find_workflow_files()
-    if workflow_files:
-        print("🔄 Workflows:")
-        for wf in sorted(workflow_files):
-            print(f"  - {wf.name}")
-        print()
-
-    # Find test files
-    test_files = list(Path.cwd().rglob("*.test.py"))
-    if test_files:
-        print("🧪 Tests:")
-        for test_file in sorted(test_files):
-            print(f"  - {test_file.stem.replace('.test', '')} ({test_file})")
-        print()
-
-    if not agent_files and not workflow_files and not test_files:
-        print("No resources found in current directory.")
+    else:
+        print("No agents found in current directory.")
 
 
 if __name__ == "__main__":
